@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../services/product/product.service';
 import { Product } from '../../common/product';
 import { CurrencyPipe, NgClass } from '@angular/common';
@@ -10,7 +10,7 @@ import { ProductCardComponent } from '../product-card/product-card.component';
   imports: [CurrencyPipe, NgClass, ProductCardComponent],
   template:`
   <div class="row">
-    @for (product of products; track $index) {
+    @for (product of products; track product.id) {
       <product-card class="col-md-3" [productValue]="product"/>
     }
     <nav aria-label="Page navigation example">
@@ -28,8 +28,8 @@ import { ProductCardComponent } from '../product-card/product-card.component';
 })
 export class ProductListComponent implements OnInit{
 
-  products!:Product[];
-  currentCategoryId!: number | null;
+  products: Product[] = [];
+  currentCategoryId: number | null = null;
 
   pageNumber: number = 0;
   pageSize: number = 10;
@@ -42,22 +42,24 @@ export class ProductListComponent implements OnInit{
   ngOnInit(): void {
     this.route.paramMap.subscribe(
       params  => {
-        this.currentCategoryId = Number(params.get('id'));
+        const idParam = params.get('id');
+        this.currentCategoryId = idParam !== null ? Number(idParam) : null;
+        this.pageNumber = 0;
         this.listProducts();
       }
     );
   }
 
-  handlePaginate(page : any){
-    if (page == 'prev' && this.pageNumber > 0) {
+  handlePaginate(page : number | 'prev' | 'next'){
+    if (page === 'prev' && this.pageNumber > 0) {
       this.pageNumber--;
       this.listProducts();
     }
-    else if(page == 'next' && this.pageNumber < this.totalPage - 1){
+    else if(page === 'next' && this.pageNumber < this.totalPage - 1){
       this.pageNumber++;
       this.listProducts();
     }
-    else{
+    else if (typeof page === 'number') {
       this.pageNumber = page;
       this.listProducts();
     }
@@ -68,7 +70,6 @@ export class ProductListComponent implements OnInit{
       this.currentCategoryId = 1;
     }
     if(this.route.snapshot.paramMap.has('keyword')){
-      console.log('search...')
       this.handleSearchProducts();
     }
     else{
@@ -83,7 +84,7 @@ export class ProductListComponent implements OnInit{
                                                 this.currentCategoryId)
                                                 .subscribe(
                                                   response => {
-                                                    this.products = response._embedded.products;
+                                                    this.products = response._embedded?.products ?? [];
                                                     this.pageNumber = response.page.number;
                                                     this.pageSize = response.page.size;
                                                     this.totalElements = response.page.totalElements;
