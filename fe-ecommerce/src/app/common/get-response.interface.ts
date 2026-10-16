@@ -2,7 +2,7 @@ import { Category } from "./category";
 import { Product } from "./product";
 
 export interface GetResponseProducts {
-    _embedded: {
+    _embedded?: {
       products: Product[];
     },
     page : {
@@ -14,7 +14,7 @@ export interface GetResponseProducts {
   }
 
 export interface GetResponseCategories {
-    _embedded: {
+    _embedded?: {
       categories: Category[];
     }
   }
