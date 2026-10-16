@@ -12,7 +12,7 @@ import { Category } from '../../common/category';
 })
 export class CategoryMenuComponent implements OnInit{
 
-  categories!: Category[];
+  categories: Category[] = [];
 
   constructor(private categoryService :  CategoryService) { }
 
@@ -21,10 +21,9 @@ export class CategoryMenuComponent implements OnInit{
   }
 
   listCategories() {
-    this.categoryService.getCategories().subscribe(
-      data => {
-        this.categories = data;
-      }
-    );
+    this.categoryService.getCategories().subscribe({
+      next: data => { this.categories = data; },
+      error: () => { this.categories = []; }
+    });
   }
 }
