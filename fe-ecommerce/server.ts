@@ -50,6 +50,13 @@ function run(): void {
   const server = app();
   server.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
+  }).on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${port} is already in use. Set PORT to use another port.`);
+    } else {
+      console.error('Express server failed to start:', err);
+    }
+    process.exit(1);
   });
 }
 
