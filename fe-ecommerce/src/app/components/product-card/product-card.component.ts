@@ -1,4 +1,4 @@
-import { Component, Input, InputSignal, input } from '@angular/core';
+import { Component, InputSignal, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Product } from '../../common/product';
 import { CurrencyPipe } from '@angular/common';
@@ -16,15 +16,11 @@ import { CurrencyPipe } from '@angular/common';
               <h1 >{{productValue().name}}</h1>
           </a>
           <div class="price">{{productValue().unitPrice | currency:'USD'}}</div>
-          <a href="#" class="primary-btn">Add to cart</a>
+          <button type="button" class="primary-btn">Add to cart</button>
       </div>
   `,
   styleUrl: './product-card.component.scss',
 })
 export class ProductCardComponent {
-  // hello : string = input<string>();
   productValue : InputSignal<Product> = input.required<Product>();
-  // @Input({required:true}) product! : Product;
-
-  
 }
