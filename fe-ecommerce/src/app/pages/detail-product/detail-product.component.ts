@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Product } from '../../common/product';
 import { ProductService } from '../../services/product/product.service';
-import { ActivatedRoute, Router, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 
 @Component({
@@ -21,14 +21,17 @@ export class DetailProductComponent implements OnInit {
 
   ngOnInit(): void {
     const productId = this.route.snapshot.paramMap.get('id');
-
-    this.handleProduct(productId);
+    if (productId === null || productId.trim() === '') {
+      return;
+    }
+    this.loadProduct(productId);
   }
 
-  handleProduct(id : string | null): void  {
-    this.productService.getProduct(id).subscribe(
-      product => this.product = product
-    );
+  loadProduct(id : string): void  {
+    this.productService.getProduct(id).subscribe({
+      next: product => this.product = product,
+      error: () => { /* keep template empty when product is missing */ }
+    });
   }
   
 }
