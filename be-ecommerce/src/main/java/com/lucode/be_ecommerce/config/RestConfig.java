@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
@@ -15,18 +14,15 @@ import com.lucode.be_ecommerce.entity.Category;
 import com.lucode.be_ecommerce.entity.Product;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.metamodel.EntityType;;
+import jakarta.persistence.metamodel.EntityType;
 
-@Configuration // Indicates that this class contains configuration settings
+@Configuration
 public class RestConfig implements RepositoryRestConfigurer {
 
-    // EntityManager allows interaction with the persistence context
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
-    // Constructor to inject the EntityManager dependency
-    // @Autowired
-    public RestConfig(EntityManager _entityManager){
-        entityManager = _entityManager;
+    public RestConfig(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
      // Override method to configure repository REST settings
@@ -52,7 +48,11 @@ public class RestConfig implements RepositoryRestConfigurer {
             .withCollectionExposure((metadata, httpMethods) -> httpMethods.disable(unsupportedAction));
 
 
-        // Call method to expose entity IDs in the API responses
+        cors.addMapping("/api/**")
+            .allowedOrigins("http://localhost:4200")
+            .allowedMethods(HttpMethod.GET.name(), HttpMethod.OPTIONS.name())
+            .allowedHeaders("*");
+
         exposeIds(config);
     }
 
@@ -63,16 +63,13 @@ public class RestConfig implements RepositoryRestConfigurer {
         Set<EntityType<?>> entities = entityManager.getMetamodel().getEntities();
 
         // Create a list to hold the entity classes
-        List<Class> entityClasses = new ArrayList<>();
+        List<Class<?>> entityClasses = new ArrayList<>();
 
-
-        // Add each entity's class to the list
-        for(EntityType tempEntityType : entities){
-            entityClasses.add(tempEntityType.getJavaType());
+        for (EntityType<?> entityType : entities) {
+            entityClasses.add(entityType.getJavaType());
         }
 
-        // Convert the list to an array of classes
-        Class[] domainTypes = entityClasses.toArray(new Class[0]);
+        Class<?>[] domainTypes = entityClasses.toArray(Class[]::new);
 
         // Expose the IDs for the specified domain types
         config.exposeIdsFor(domainTypes);
