@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, debounceTime, map } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { Product } from '../../common/product';
 import { environment } from '../../../environments/environment';
 import { GetResponseProducts } from '../../common/get-response.interface';
@@ -18,7 +18,7 @@ export class ProductService {
     const searchUrl = `${environment.productsURL}/search/findByCategoryId?id=${theCategoryId}`;
 
     return this.httpClient.get<GetResponseProducts>(searchUrl).pipe(
-      map(response => response._embedded.products)
+      map(response => response._embedded?.products ?? [])
     );
   }
 
@@ -33,11 +33,12 @@ export class ProductService {
   }
 
   getProductSearchList(input : string | null): Observable<Product[]>{
-    const searchUrl = `${environment.productsURL}/search/findByNameContaining?name=${input}`;
+    const encodedName = encodeURIComponent(input ?? '');
+    const searchUrl = `${environment.productsURL}/search/findByNameContaining?name=${encodedName}`;
 
     return this.httpClient.get<GetResponseProducts>(searchUrl)
     .pipe(
-      map(response => response._embedded.products)
+      map(response => response._embedded?.products ?? [])
     );
   }
 
