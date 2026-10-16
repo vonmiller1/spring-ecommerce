@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Form, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { debounceTime } from 'rxjs';
 
@@ -12,16 +12,17 @@ import { debounceTime } from 'rxjs';
 })
 export class SearchBarComponent implements OnInit{
 
-  searchControl: FormControl = new FormControl('');;
+  searchControl: FormControl = new FormControl('');
 
   constructor(private router: Router) { }
 
   ngOnInit(): void {
     this.searchControl.valueChanges.pipe(
-      debounceTime(250)  // 1 second delay
+      debounceTime(250)
     ).subscribe(input => {
-      if (input) {
-        this.getProductsBySeach(input);
+      const term = (input ?? '').trim();
+      if (term.length > 0) {
+        this.navigateToSearch(term);
       }
       else{
         this.router.navigateByUrl('/');
@@ -29,10 +30,8 @@ export class SearchBarComponent implements OnInit{
     });
   }
 
-  getProductsBySeach(input : string){
-    console.log(`value=${input}`);
-    this.router.navigateByUrl(`/search/${input}`);
-    
+  navigateToSearch(input : string){
+    this.router.navigateByUrl(`/search/${encodeURIComponent(input)}`);
   }
 
 }
